@@ -1,0 +1,20 @@
+[
+    {
+        "category": "crowd_cheering",
+        "start": 10,
+        "end": 18,
+        "score": 0.91
+    },
+    {
+        "category": "dancing",
+        "start": 35,
+        "end": 45,
+        "score": 0.88
+    },
+    {
+        "category": "confetti",
+        "start": 60,
+        "end": 67,
+        "score": 0.97
+    }
+]
