@@ -24,3 +24,5 @@ data/samples/*
 # Keep folder structure
 !data/chunks/.gitkeep
 !data/samples/.gitkeep
+
+**/clips/*.mp4

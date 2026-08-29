@@ -1,0 +1,17 @@
+[
+  {
+    "clip": "clip1.mp4",
+    "question": "is anyone tightly surrounded",
+    "expected_match": true
+  },
+  {
+    "clip": "clip1.mp4",
+    "question": "is someone on the ground",
+    "expected_match": false
+  },
+  {
+    "clip": "clip2.mp4",
+    "question": "is anyone tightly surrounded",
+    "expected_match": false
+  }
+]
