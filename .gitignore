@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated data
+data/chunks/*
+data/samples/*
+
+# Keep folder structure
+!data/chunks/.gitkeep
+!data/samples/.gitkeep

@@ -1,0 +1,26 @@
+# TODO: flesh out once the three components run individually.
+# All three share the same image, the same ./data volume, and the same .env.
+
+services:
+  ingest:
+    build: .
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    # TODO: command: python -m reel_it_in.ingest --source ...
+
+  safety-worker:
+    build: .
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    # TODO: command: python -m reel_it_in.vision.safety_worker
+
+  dashboard:
+    build: .
+    env_file: .env
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+    # TODO: command: streamlit run reel_it_in/dashboard/app.py

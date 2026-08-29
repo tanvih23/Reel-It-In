@@ -77,8 +77,8 @@ Same pipeline. Same "understanding." Two very different questions, two very diff
 ### Install
 
 ```bash
-git clone https://github.com/<your-org>/vantage.git
-cd vantage
+git clone https://github.com/<your-org>/Reel-It-In.git
+cd Reel-It-In
 python -m venv venv
 source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -102,26 +102,26 @@ CONFIDENCE_THRESHOLD=0.65
 
 **Terminal 1 — start the ingest + chunker:**
 ```bash
-python -m vantage.ingest --source path/to/sample_footage.mp4  # "fake live" playback
+python -m reel_it_in.ingest --source path/to/sample_footage.mp4  # "fake live" playback
 # OR
-python -m vantage.ingest --source rtmp://your.drone.stream    # real live source
+python -m reel_it_in.ingest --source rtmp://your.drone.stream    # real live source
 ```
 
 **Terminal 2 — start the vision worker + middleware:**
 ```bash
-python -m vantage.vision.safety_worker
+python -m reel_it_in.vision.safety_worker
 ```
 
 **Terminal 3 — start the dashboard:**
 ```bash
-streamlit run vantage/dashboard/app.py
+streamlit run reel_it_in/dashboard/app.py
 ```
 
 Then open [http://localhost:8501](http://localhost:8501) — alerts populate live as the video plays.
 
 **Generate a highlight reel from recorded footage:**
 ```bash
-python -m vantage.highlights --input path/to/full_footage.mp4 --output highlights.mp4
+python -m reel_it_in.highlights --input path/to/full_footage.mp4 --output highlights.mp4
 ```
 
 ### One-command demo (bonus)
@@ -133,17 +133,23 @@ make demo         # spins up all three components + plays sample footage
 ## Project structure
 
 ```
-vantage/
-├── ingest/           # RTMP receiver + FFmpeg chunker
-├── vision/
-│   ├── safety.py     # safety question set + Reka caller
-│   └── highlights.py # highlight question set + Reka caller
-├── middleware/       # thresholding, dedup, prioritization, feed-loss detection
-├── dashboard/        # Streamlit monitor UI
-├── highlights/       # moviepy stitching + reel assembly
-├── eval/             # labeled test clips + precision/recall harness
-├── data/             # chunks, events DB, sample footage (gitignored)
-└── docs/             # architecture notes, prompt sets, demo script
+Reel-It-In/
+├── reel_it_in/
+│   ├── config.py         # .env loading
+│   ├── db.py             # SQLite event log
+│   ├── ingest/           # RTMP receiver + FFmpeg chunker
+│   ├── vision/
+│   │   ├── client.py     # shared Reka API wrapper
+│   │   ├── safety.py     # safety question set + Reka caller
+│   │   ├── highlights.py # highlight question set + Reka caller
+│   │   └── safety_worker.py
+│   ├── middleware/       # thresholding, dedup, prioritization, feed-loss detection
+│   ├── dashboard/        # Streamlit monitor UI
+│   ├── highlights/       # moviepy stitching + reel assembly
+│   └── eval/             # labeled test clips + precision/recall harness
+├── data/                 # chunks, events DB, sample footage (gitignored)
+├── docs/                 # architecture notes, prompt sets, demo script
+└── tests/
 ```
 
 ## Design principles
