@@ -2,16 +2,92 @@
   {
     "clip": "clip1.mp4",
     "question": "is anyone tightly surrounded",
-    "expected_match": true
+    "expected_match": true,
+    "timestamp_range": [0, 16]
   },
   {
     "clip": "clip1.mp4",
-    "question": "is someone on the ground",
+    "question": "is there a sudden bunching of the crowd",
+    "expected_match": false
+  },
+  {
+    "clip": "clip1.mp4",
+    "question": "is someone on the ground and looks like they have fainted",
+    "expected_match": false
+  },
+  {
+    "clip": "clip1.mp4",
+    "question": "does someone look injured",
+    "expected_match": false
+  },
+  {
+    "clip": "clip1.mp4",
+    "question": "is the crowd rushing towards a single direction",
+    "expected_match": false
+  },
+  {
+    "clip": "clip1.mp4",
+    "question": "is anyone laying on the ground",
     "expected_match": false
   },
   {
     "clip": "clip2.mp4",
     "question": "is anyone tightly surrounded",
+    "expected_match": false
+  },
+  {
+    "clip": "clip2.mp4",
+    "question": "is there a sudden bunching of the crowd",
+    "expected_match": false
+  },
+  {
+    "clip": "clip2.mp4",
+    "question": "is someone on the ground and looks like they have fainted",
+    "expected_match": false
+  },
+  {
+    "clip": "clip2.mp4",
+    "question": "does someone look injured",
+    "expected_match": false
+  },
+  {
+    "clip": "clip2.mp4",
+    "question": "is the crowd rushing towards a single direction",
+    "expected_match": false
+  },
+  {
+    "clip": "clip2.mp4",
+    "question": "is anyone laying on the ground",
+    "expected_match": false
+  },
+  {
+    "clip": "clip3.mp4",
+    "question": "is anyone tightly surrounded",
+    "expected_match": false
+  },
+  {
+    "clip": "clip3.mp4",
+    "question": "is there a sudden bunching of the crowd",
+    "expected_match": false
+  },
+  {
+    "clip": "clip3.mp4",
+    "question": "is someone on the ground and looks like they have fainted",
+    "expected_match": false
+  },
+  {
+    "clip": "clip3.mp4",
+    "question": "does someone look injured",
+    "expected_match": false
+  },
+  {
+    "clip": "clip3.mp4",
+    "question": "is the crowd rushing towards a single direction",
+    "expected_match": false
+  },
+  {
+    "clip": "clip3.mp4",
+    "question": "is anyone laying on the ground",
     "expected_match": false
   }
 ]
