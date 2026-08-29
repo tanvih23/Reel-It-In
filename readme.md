@@ -162,10 +162,10 @@ Precision/recall numbers for the safety question set, measured against a labeled
 
 ## Team
 
-- **[Name]** — Ingest & Drone Integration Lead
-- **Tanvi** — Safety Vision Pipeline Lead
-- **[Name]** — Highlights Vision + Video Assembly Lead
-- **[Name]** — Alert Middleware, Eval Harness & Demo Infrastructure Lead
+- **Shambhavi Srivastava** — Ingest & Drone Integration Lead
+- **Tanvi Hanish** — Safety Vision Pipeline Lead
+- **Vedita Jayswal** — Highlights Vision + Video Assembly Lead
+- **Kirtika Agrawal** — Alert Middleware, Eval Harness & Demo Infrastructure Lead
 
 ## Built for
 
