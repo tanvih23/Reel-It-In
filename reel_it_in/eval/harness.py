@@ -4,9 +4,11 @@
 # TODO: score against the labels and write docs/eval-results.md
 import json
 import os
-from fake_safety import analyze
+from reel_it_in.vision.safety import analyze
 
-with open("labels.json") as f:
+import os
+labels_path = os.path.join(os.path.dirname(__file__), "labels.json")
+with open(labels_path) as f:
     labels = json.load(f)
 
 true_positives = 0
@@ -15,7 +17,7 @@ false_negatives = 0
 true_negatives = 0
 
 for label in labels:
-    clip_path = os.path.join("clips", label["clip"])
+    clip_path = os.path.join(os.path.dirname(__file__), "clips", label["clip"])
     predictions = analyze(clip_path)
 
     matching_prediction = None
@@ -27,6 +29,7 @@ for label in labels:
     if matching_prediction is None:
         print("No prediction found for:", label["question"], "in", label["clip"])
         continue
+    
 
     predicted = matching_prediction["match"]
     expected = label["expected_match"]
