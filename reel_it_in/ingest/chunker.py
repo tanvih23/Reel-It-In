@@ -69,9 +69,12 @@ def publisher(staging: Path, out: Path, stop: threading.Event):
                 print(f"[warn] could not publish {f.name}: {e}", flush=True)
         time.sleep(0.5)
 
-    # FFmpeg has stopped, so the last file is finished too.
+        # FFmpeg has stopped, so the last file is finished too.
     for f in sorted(staging.glob("*.mp4")):
         try:
+            if f.stat().st_size < 10_000:   # header-only stub from an interrupt
+                f.unlink()
+                continue
             os.replace(f, out / f.name)
             print(f"[chunk] {f.name} (final)", flush=True)
         except OSError:
