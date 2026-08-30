@@ -1,4 +1,4 @@
-"""Entry point for the Highlight AI + Video Editor module."""
+"""Entry point for the Highlight Reel pipeline."""
 
 import argparse
 import json
@@ -9,33 +9,77 @@ from reel_it_in.vision.highlights import (
     wait_until_indexed,
     find_highlights,
 )
-from reel_it_in.highlights.selection import select_highlights
-from reel_it_in.highlights.stitch import create_highlight_reel
+
+from reel_it_in.highlights.selection import (
+    select_highlights,
+)
+
+from reel_it_in.highlights.stitch import (
+    create_highlight_reel,
+)
 
 
 def run_pipeline(
-    video_path: str,
-    output_dir: str = "output",
-    max_highlights: int = 8,
-    min_gap: float = 2.0,
-    target_duration: float = 30.0,
-    order: str = "chronological",
-    add_transitions: bool = True,
-    transition_duration: float = 0.5,
-    add_captions: bool = False,
+    video_path,
+    output_dir="output",
+    max_highlights=8,
+    min_gap=2.0,
+    target_duration=30,
+    order="chronological",
+    add_transitions=True,
+    transition_duration=0.5,
+    add_captions=False,
     caption_font=None,
     music_path=None,
-    music_volume: float = 0.15,
-) -> None:
-    video_id = upload_video(video_path)
-    wait_until_indexed(video_id)
-    raw_events = find_highlights(video_id)
+    music_volume=0.15,
+):
+
+    # -----------------------------
+    # 1. SEND VIDEO TO REKA
+    # -----------------------------
+
+    print("[Main] Uploading video...")
+
+    video_id = upload_video(
+        video_path
+    )
+
+    # -----------------------------
+    # 2. WAIT FOR REKA
+    # -----------------------------
+
+    print("[Main] Waiting for indexing...")
+
+    wait_until_indexed(
+        video_id
+    )
+
+    # -----------------------------
+    # 3. FIND HIGHLIGHTS
+    # -----------------------------
+
+    print("[Main] Finding highlights...")
+
+    raw_events = find_highlights(
+        video_id
+    )
 
     if not raw_events:
-        print("[Main] Reka didn't find any highlights. Stopping.")
+
+        print(
+            "[Main] No highlights found."
+        )
+
         return
 
-    print(f"[Main] Reka returned {len(raw_events)} raw candidate moments.")
+    print(
+        f"[Main] Reka found "
+        f"{len(raw_events)} candidates."
+    )
+
+    # -----------------------------
+    # 4. SELECT BEST HIGHLIGHTS
+    # -----------------------------
 
     selected = select_highlights(
         raw_events,
@@ -45,23 +89,67 @@ def run_pipeline(
     )
 
     if not selected:
-        print("[Main] Nothing survived the selection step. Stopping.")
+
+        print(
+            "[Main] No highlights "
+            "survived selection."
+        )
+
         return
 
-    print(f"[Main] Selected {len(selected)} final highlights.")
+    print(
+        f"[Main] Selected "
+        f"{len(selected)} highlights."
+    )
 
-    os.makedirs(output_dir, exist_ok=True)
-    highlights_json_path = os.path.join(output_dir, "highlights.json")
+    # -----------------------------
+    # 5. CREATE OUTPUT DIRECTORY
+    # -----------------------------
 
-    with open(highlights_json_path, "w") as f:
-        json.dump({"highlights": selected}, f, indent=2)
+    os.makedirs(
+        output_dir,
+        exist_ok=True,
+    )
 
-    reel_output_path = os.path.join(output_dir, "highlight_reel.mp4")
+    # -----------------------------
+    # 6. SAVE HIGHLIGHT DATA
+    # -----------------------------
+
+    highlights_path = os.path.join(
+        output_dir,
+        "highlights.json",
+    )
+
+    with open(
+        highlights_path,
+        "w",
+    ) as file:
+
+        json.dump(
+            {
+                "highlights": selected
+            },
+            file,
+            indent=2,
+        )
+
+    # -----------------------------
+    # 7. FINAL VIDEO PATH
+    # -----------------------------
+
+    output_path = os.path.join(
+        output_dir,
+        "highlight_reel.mp4",
+    )
+
+    # -----------------------------
+    # 8. EDIT THE REEL
+    # -----------------------------
 
     create_highlight_reel(
         video_path=video_path,
-        highlights_path=highlights_json_path,
-        output_path=reel_output_path,
+        highlights_path=highlights_path,
+        output_path=output_path,
         order=order,
         add_transitions=add_transitions,
         transition_duration=transition_duration,
@@ -72,20 +160,83 @@ def run_pipeline(
     )
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Turn a video into a highlight reel.")
-    parser.add_argument("video_path")
-    parser.add_argument("--output-dir", default="output")
-    parser.add_argument("--max-highlights", type=int, default=8)
-    parser.add_argument("--min-gap", type=float, default=2.0)
-    parser.add_argument("--duration", type=int, choices=[15, 30, 60], default=30)
-    parser.add_argument("--order", choices=["chronological", "score", "random"], default="chronological")
-    parser.add_argument("--no-transitions", action="store_true")
-    parser.add_argument("--transition-duration", type=float, default=0.5)
-    parser.add_argument("--captions", action="store_true")
-    parser.add_argument("--caption-font", default=None)
-    parser.add_argument("--music", default=None)
-    parser.add_argument("--music-volume", type=float, default=0.15)
+def main():
+
+    parser = argparse.ArgumentParser(
+        description=(
+            "Create an AI highlight reel."
+        )
+    )
+
+    parser.add_argument(
+        "video_path"
+    )
+
+    parser.add_argument(
+        "--duration",
+        type=int,
+        choices=[15, 30, 60],
+        default=30,
+    )
+
+    parser.add_argument(
+        "--order",
+        choices=[
+            "chronological",
+            "score",
+            "random",
+        ],
+        default="chronological",
+    )
+
+    parser.add_argument(
+        "--max-highlights",
+        type=int,
+        default=8,
+    )
+
+    parser.add_argument(
+        "--min-gap",
+        type=float,
+        default=2.0,
+    )
+
+    parser.add_argument(
+        "--no-transitions",
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "--transition-duration",
+        type=float,
+        default=0.5,
+    )
+
+    parser.add_argument(
+        "--captions",
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "--caption-font",
+        default="assets/fonts/Roboto-Bold.ttf",
+    )
+
+    parser.add_argument(
+        "--music",
+        default="data/music/track.mp3",
+    )
+
+    parser.add_argument(
+        "--music-volume",
+        type=float,
+        default=0.5,
+    )
+
+    parser.add_argument(
+        "--output-dir",
+        default="output",
+    )
 
     args = parser.parse_args()
 
@@ -94,7 +245,7 @@ def main() -> None:
         output_dir=args.output_dir,
         max_highlights=args.max_highlights,
         min_gap=args.min_gap,
-        target_duration=float(args.duration),
+        target_duration=args.duration,
         order=args.order,
         add_transitions=not args.no_transitions,
         transition_duration=args.transition_duration,

@@ -1,11 +1,18 @@
 {
   "highlights": [
     {
-      "start": 24.9066666666667,
-      "end": 42.7333333333333,
-      "score": 0.9305549263954163,
+      "start": 0.0,
+      "end": 14.167700000000004,
+      "score": 0.9076452255249023,
       "reason": "exciting stage performance with energetic audience reaction",
       "query": "exciting stage performance with energetic audience reaction"
+    },
+    {
+      "start": 33.277,
+      "end": 49.1093,
+      "score": 0.924042820930481,
+      "reason": "large crowd dancing and cheering enthusiastically",
+      "query": "large crowd dancing and cheering enthusiastically"
     }
   ]
 }
