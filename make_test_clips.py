@@ -25,20 +25,20 @@ def write(path, step_fn):
 
 
 # LAMINAR: everyone drifts the same direction, small jitter
-write("/home/claude/test_laminar.mp4",
+write("test_laminar.mp4",
       lambda p, t: p + np.array([2.0, 0.0]) + rng.normal(0, 0.15, p.shape))
 
 # TURBULENT: each dot shoved in its own random direction, re-randomised often
 def turbulent(p, t):
     return p + rng.normal(0, 2.5, p.shape)
-write("/home/claude/test_turbulent.mp4", turbulent)
+write("test_turbulent.mp4", turbulent)
 
 # STOP_AND_GO: coherent direction, but speed pulses between fast and frozen
 def stopgo(p, t):
     speed = 3.0 if (t // 7) % 2 == 0 else 0.05
     return p + np.array([speed, 0.0]) + rng.normal(0, 0.15, p.shape)
-write("/home/claude/test_stopgo.mp4", stopgo)
+write("test_stopgo.mp4", stopgo)
 
 # STATIC: essentially nothing happening
-write("/home/claude/test_static.mp4",
+write("test_static.mp4",
       lambda p, t: p + rng.normal(0, 0.05, p.shape))
