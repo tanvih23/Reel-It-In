@@ -2,45 +2,38 @@
   "highlights": [
     {
       "start": 0.0,
-      "end": 6.092333333333333,
-      "score": 0.9076284170150757,
-      "reason": "large audience reaction such as jumping or singing along",
-      "query": "large audience reaction such as jumping or singing along"
-    },
-    {
-      "start": 12.184666666666667,
-      "end": 18.277,
-      "score": 0.9076284170150757,
-      "reason": "large audience reaction such as jumping or singing along",
-      "query": "large audience reaction such as jumping or singing along"
-    },
-    {
-      "start": 23.277,
-      "end": 25.35236666666667,
-      "score": 0.8814482092857361,
-      "reason": "confetti or streamers falling",
-      "query": "confetti or streamers falling"
-    },
-    {
-      "start": 33.277,
-      "end": 38.554433333333336,
-      "score": 0.9105936288833618,
-      "reason": "large audience reaction such as jumping or singing along",
-      "query": "large audience reaction such as jumping or singing along"
-    },
-    {
-      "start": 43.83186666666666,
-      "end": 49.1093,
-      "score": 0.9105936288833618,
-      "reason": "large audience reaction such as jumping or singing along",
-      "query": "large audience reaction such as jumping or singing along"
-    },
-    {
-      "start": 54.294399999999996,
-      "end": 59.479499999999994,
-      "score": 0.9051823019981384,
+      "end": 5.850525,
+      "score": 0.9076398611068726,
       "reason": "crowd surge or crowd pushing forward",
       "query": "crowd surge or crowd pushing forward"
+    },
+    {
+      "start": 11.70105,
+      "end": 17.551575,
+      "score": 0.9076398611068726,
+      "reason": "crowd surge or crowd pushing forward",
+      "query": "crowd surge or crowd pushing forward"
+    },
+    {
+      "start": 23.4021,
+      "end": 28.4021,
+      "score": 0.9182082414627075,
+      "reason": "large audience reaction such as jumping or singing along",
+      "query": "large audience reaction such as jumping or singing along"
+    },
+    {
+      "start": 33.4021,
+      "end": 38.4021,
+      "score": 0.9182082414627075,
+      "reason": "large audience reaction such as jumping or singing along",
+      "query": "large audience reaction such as jumping or singing along"
+    },
+    {
+      "start": 43.68613333333333,
+      "end": 48.970166666666664,
+      "score": 0.9030691385269165,
+      "reason": "crowd cheering enthusiastically",
+      "query": "crowd cheering enthusiastically"
     }
   ]
 }

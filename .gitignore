@@ -26,4 +26,6 @@ data/samples/*
 !data/samples/.gitkeep
 
 **/clips/*.mp4
+*.mp3
+
 !data/music/.gitkeep

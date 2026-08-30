@@ -239,7 +239,7 @@ def main():
             "score",
             "random",
         ],
-        default="chronological",
+        default="random",
     )
 
     parser.add_argument(
@@ -267,7 +267,7 @@ def main():
 
     parser.add_argument(
         "--music",
-        default="data/music/track.mp3",
+        default="data/samples/track.mp3",
     )
     
     parser.add_argument(

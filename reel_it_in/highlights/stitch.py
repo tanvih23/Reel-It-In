@@ -41,6 +41,33 @@ def add_zoom(clip, zoom_amount=0.06):
 
     return clip.resized(scale).with_position("center")
 
+def smart_shuffle(highlights):
+    """Shuffle highlights, avoiding two clips with the same query type in a row."""
+
+    import random as _random
+
+    remaining = highlights.copy()
+    _random.shuffle(remaining)
+
+    result = []
+
+    while remaining:
+
+        # Find a candidate that doesn't match the last placed clip's query
+        placed = False
+
+        for i, candidate in enumerate(remaining):
+            if not result or candidate.get("query") != result[-1].get("query"):
+                result.append(remaining.pop(i))
+                placed = True
+                break
+
+        # If every remaining clip matches the last one's query, place it anyway
+        if not placed:
+            result.append(remaining.pop(0))
+
+    return result
+
 def crop_vertical(clip, target_ratio=9 / 16):
     """Center-crop a clip to a vertical (e.g. 9:16) aspect ratio."""
 
@@ -118,7 +145,7 @@ def create_highlight_reel(
 
     elif order == "random":
 
-        random.shuffle(highlights)
+        highlights = smart_shuffle(highlights)
 
     else:
         raise ValueError(
