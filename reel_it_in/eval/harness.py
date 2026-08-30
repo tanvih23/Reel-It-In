@@ -6,7 +6,6 @@ import json
 import os
 from reel_it_in.vision.safety import analyze
 
-import os
 labels_path = os.path.join(os.path.dirname(__file__), "labels.json")
 with open(labels_path) as f:
     labels = json.load(f)
@@ -16,9 +15,14 @@ false_positives = 0
 false_negatives = 0
 true_negatives = 0
 
+cache = {}
+
 for label in labels:
     clip_path = os.path.join(os.path.dirname(__file__), "clips", label["clip"])
-    predictions = analyze(clip_path)
+
+    if label["clip"] not in cache:
+        cache[label["clip"]] = analyze(clip_path)
+    predictions = cache[label["clip"]]
 
     matching_prediction = None
     for prediction in predictions:

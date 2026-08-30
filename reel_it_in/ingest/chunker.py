@@ -36,8 +36,9 @@ def build_cmd(source, out_pattern, seconds, loop, force_reencode):
         cmd += [
             "-c:v", "libx264", "-preset", "ultrafast", "-tune", "zerolatency",
             "-pix_fmt", "yuv420p",
-            "-g", "30",   # keyframe ~every second, so cuts land where we ask
-            "-an",        # no audio - the vision model doesn't use it
+            "-r", "15",   # fixed fps - flow metrics are per-frame, must be constant
+            "-g", "30",
+            "-an",
         ]
     else:
         cmd += ["-c", "copy"]   # fast and lossless, but cuts only on keyframes
@@ -89,7 +90,7 @@ def main():
     ap.add_argument("--staging", default=os.getenv("STAGING_DIR", "./data/staging"))
     ap.add_argument("--seconds", type=int, default=int(os.getenv("CHUNK_SECONDS", "15")))
     ap.add_argument("--loop", action="store_true", help="loop a file source forever")
-    ap.add_argument("--reencode", action="store_true", help="force re-encode (fixes wrong chunk lengths)")
+    ap.add_argument("--no-reencode", action="store_true",help="stream-copy instead of re-encoding (faster, but chunk lengths vary)")
     args = ap.parse_args()
 
     if shutil.which("ffmpeg") is None:
@@ -104,7 +105,7 @@ def main():
     staging.mkdir(parents=True)
 
     pattern = str(staging / f"{args.cam}_%04d.mp4")
-    cmd = build_cmd(args.source, pattern, args.seconds, args.loop, args.reencode)
+    cmd = build_cmd(args.source, pattern, args.seconds, args.loop, not args.no_reencode)
 
     print(f"[ingest] {args.cam}: {describe(args.source)} source '{args.source}', "
           f"{args.seconds}s chunks -> {out}")

@@ -19,10 +19,12 @@ Thumbs.db
 
 # Generated data
 data/chunks/*
-data/samples/*
+data/sample/*
+data/staging/*
 
 # Keep folder structure
 !data/chunks/.gitkeep
-!data/samples/.gitkeep
+!data/sample/.gitkeep
+!data/staging/.gitkeep
 
 **/clips/*.mp4
