@@ -8,6 +8,11 @@ Run:
     python -m reel_it_in.ingest --source 0
     python -m reel_it_in.ingest --source http://192.168.1.15:8080/video --cam cam1
 """
+# CONTRACT: chunks are named {cam}_{seq:04d}.mp4 and other modules depend on it.
+#   - the cam prefix identifies which camera a chunk came from (per-zone tracking)
+#   - the sequence number gives absolute position: seq * CHUNK_SECONDS seconds into
+#     the feed, because -reset_timestamps 1 zeroes each chunk's internal clock
+# Do not change this format without telling vision/ and highlights/.
 
 import argparse
 import os
@@ -121,8 +126,17 @@ def main():
     except KeyboardInterrupt:
         print("\n[ingest] stopping...", flush=True)
         proc.terminate()
-        proc.wait()
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()     # ffmpeg ignored terminate - force it, or it keeps the camera
+            proc.wait()
     finally:
         stop.set()
         pub.join(timeout=5)
         print("[ingest] done.", flush=True)
+
+    # Pass ffmpeg's exit status up so the manager can tell a finished file
+    # from a camera that dropped. 255 is ffmpeg's code for being killed.
+    if proc.returncode not in (0, None):
+        sys.exit(1)
