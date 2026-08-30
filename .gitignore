@@ -24,9 +24,6 @@ data/samples/*
 # Keep folder structure
 !data/chunks/.gitkeep
 !data/samples/.gitkeep
-<<<<<<< Updated upstream
 
 **/clips/*.mp4
-=======
 !data/music/.gitkeep
->>>>>>> Stashed changes
