@@ -285,4 +285,4 @@ def find_highlights(
         reverse=True,
     )
 
-    return events
+    return eventsssh
