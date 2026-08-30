@@ -4,6 +4,24 @@ import argparse
 import json
 import os
 
+def ask_orientation() -> bool:
+    """Ask the user whether they want a vertical or horizontal reel."""
+
+    print("\nChoose reel orientation:")
+    print("  1. Vertical (9:16 — Instagram/Shorts)")
+    print("  2. Horizontal (original aspect ratio)")
+
+    while True:
+        choice = input("Enter 1 or 2: ").strip()
+
+        if choice == "1":
+            return True
+        if choice == "2":
+            return False
+
+        print("Invalid choice, please enter 1 or 2.")
+
+
 from reel_it_in.vision.highlights import (
     upload_video,
     wait_until_indexed,
@@ -18,6 +36,39 @@ from reel_it_in.highlights.stitch import (
     create_highlight_reel,
 )
 
+EVENT_TYPE_CHOICES = [
+    "college_fest",
+    "concert",
+    "sports",
+    "cultural",
+    "lecture",
+    "competition",
+    "custom",
+]
+
+
+def ask_event_type():
+    """Ask the user what kind of event this video is, returns (event_type, custom_queries)."""
+
+    print("\nSelect event type:")
+    for i, name in enumerate(EVENT_TYPE_CHOICES, start=1):
+        print(f"  {i}. {name}")
+
+    while True:
+        choice = input(f"Enter 1-{len(EVENT_TYPE_CHOICES)}: ").strip()
+
+        if choice.isdigit() and 1 <= int(choice) <= len(EVENT_TYPE_CHOICES):
+            event_type = EVENT_TYPE_CHOICES[int(choice) - 1]
+            break
+
+        print("Invalid choice.")
+
+    if event_type == "custom":
+        raw = input("Enter custom search phrases, separated by commas: ").strip()
+        custom_queries = [q.strip() for q in raw.split(",") if q.strip()]
+        return event_type, custom_queries
+
+    return event_type, None
 
 def run_pipeline(
     video_path,
@@ -28,10 +79,11 @@ def run_pipeline(
     order="chronological",
     add_transitions=True,
     transition_duration=0.5,
-    add_captions=False,
-    caption_font=None,
     music_path=None,
     music_volume=0.15,
+    vertical=False,
+    event_type="college_fest",
+    custom_queries=None,
 ):
 
     # -----------------------------
@@ -61,7 +113,9 @@ def run_pipeline(
     print("[Main] Finding highlights...")
 
     raw_events = find_highlights(
-        video_id
+        video_id,
+        event_type=event_type,
+        custom_queries=custom_queries,
     )
 
     if not raw_events:
@@ -153,10 +207,9 @@ def run_pipeline(
         order=order,
         add_transitions=add_transitions,
         transition_duration=transition_duration,
-        add_captions=add_captions,
-        caption_font=caption_font,
         music_path=music_path,
         music_volume=music_volume,
+        vertical=vertical,
     )
 
 
@@ -213,16 +266,6 @@ def main():
     )
 
     parser.add_argument(
-        "--captions",
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--caption-font",
-        default="assets/fonts/Roboto-Bold.ttf",
-    )
-
-    parser.add_argument(
         "--music",
         default="data/music/track.mp3",
     )
@@ -237,8 +280,37 @@ def main():
         "--output-dir",
         default="output",
     )
+    parser.add_argument(
+        "--vertical",
+        action="store_true",
+        default=None,
+    )
+
+    parser.add_argument(
+        "--event-type",
+        choices=EVENT_TYPE_CHOICES,
+        default=None,
+    )
+
+    parser.add_argument(
+        "--custom-queries",
+        default=None,
+        help="Comma-separated search phrases, used only with --event-type custom",
+    )
 
     args = parser.parse_args()
+    vertical = args.vertical
+    if vertical is None:
+        vertical = ask_orientation()
+
+    if args.event_type is None:
+        event_type, custom_queries = ask_event_type()
+    else:
+        event_type = args.event_type
+        custom_queries = (
+            [q.strip() for q in args.custom_queries.split(",") if q.strip()]
+            if args.custom_queries else None
+        )
 
     run_pipeline(
         video_path=args.video_path,
@@ -249,11 +321,13 @@ def main():
         order=args.order,
         add_transitions=not args.no_transitions,
         transition_duration=args.transition_duration,
-        add_captions=args.captions,
-        caption_font=args.caption_font,
         music_path=args.music,
         music_volume=args.music_volume,
+            vertical=vertical,
+        event_type=event_type,
+        custom_queries=custom_queries,
     )
+    
 
 
 if __name__ == "__main__":

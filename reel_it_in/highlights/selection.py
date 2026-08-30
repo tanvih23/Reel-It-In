@@ -14,13 +14,50 @@ def overlaps(
         and second["start"] < first["end"]
     )
 
+def split_long_highlights(
+    events: list[dict[str, Any]],
+    max_clip_length: float = 5.5,
+    min_clip_length: float = 2.5,
+) -> list[dict[str, Any]]:
+    """Break long candidates into several shorter sub-clips."""
+
+    split_events = []
+
+    for event in events:
+
+        start = float(event["start"])
+        end = float(event["end"])
+        duration = end - start
+
+        if duration <= max_clip_length:
+            split_events.append(event)
+            continue
+
+        n_pieces = max(2, round(duration / max_clip_length))
+        piece_length = duration / n_pieces
+
+        if piece_length < min_clip_length:
+            n_pieces = max(1, int(duration // min_clip_length))
+            piece_length = duration / n_pieces
+
+        for i in range(n_pieces):
+            piece_start = start + i * piece_length
+            piece_end = min(end, piece_start + piece_length)
+
+            piece = dict(event)
+            piece["start"] = piece_start
+            piece["end"] = piece_end
+            split_events.append(piece)
+
+    return split_events
 
 def select_highlights(
     events: list[dict[str, Any]],
-    max_highlights: int = 5,
+    max_highlights: int = 10,
     min_gap: float = 2.0,
     target_duration: float = 30.0,
 ) -> list[dict[str, Any]]:
+    
     """
     Select the best highlights while avoiding duplicates,
     stopping once the reel reaches roughly target_duration seconds.
@@ -47,6 +84,8 @@ def select_highlights(
 
     if not events:
         return []
+
+    events = split_long_highlights(events)
 
     # --------------------------------------------------
     # 1. Sort candidates by Reka's score

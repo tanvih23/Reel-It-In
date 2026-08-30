@@ -7,52 +7,37 @@ import random
 from moviepy import (
     VideoFileClip,
     AudioFileClip,
-    TextClip,
-    CompositeVideoClip,
     CompositeAudioClip,
     concatenate_videoclips,
     vfx,
     afx,
 )
 
-from .captions import overlay_text, suggest_post_caption
+def add_zoom(clip, zoom_amount=0.06):
+    """Slowly zoom in over the clip's duration for a dynamic feel."""
 
+    def scale(t):
+        return 1 + zoom_amount * (t / clip.duration)
 
-def add_caption(clip, text, font_path):
-    """Add text at the bottom of the video."""
+    return clip.resized(scale).with_position("center")
 
-    if not text or not font_path:
-        return clip
+def crop_vertical(clip, target_ratio=9 / 16):
+    """Center-crop a clip to a vertical (e.g. 9:16) aspect ratio."""
 
-    if not os.path.isfile(font_path):
-        print(f"[Stitch] Font not found: {font_path}")
-        return clip
+    w, h = clip.w, clip.h
+    current_ratio = w / h
 
-    try:
-        text_clip = TextClip(
-            font=font_path,
-            text=text,
-            font_size=28,
-            color="white",
-            stroke_color="black",
-            stroke_width=2,
-            method="caption",
-            size=(clip.w - 80, None),
-        )
-
-        text_clip = (
-            text_clip
-            .with_duration(clip.duration)
-            .with_position(("center", clip.h - text_clip.h - 50))
-        )
-
-        return CompositeVideoClip([clip, text_clip])
-
-    except Exception as error:
-        print(f"[Stitch] Caption skipped: {error}")
-        return clip
-
-
+    if current_ratio > target_ratio:
+        # Too wide — crop the sides
+        new_w = int(h * target_ratio)
+        x1 = (w - new_w) // 2
+        return clip.cropped(x1=x1, x2=x1 + new_w)
+    else:
+        # Too tall — crop top/bottom
+        new_h = int(w / target_ratio)
+        y1 = (h - new_h) // 2
+        return clip.cropped(y1=y1, y2=y1 + new_h)
+    
 def create_highlight_reel(
     video_path,
     highlights_path,
@@ -60,10 +45,9 @@ def create_highlight_reel(
     order="chronological",
     add_transitions=True,
     transition_duration=0.5,
-    add_captions=False,
-    caption_font=None,
     music_path=None,
     music_volume=0.5,
+    vertical=False,
 ):
     """Create the final edited highlight reel."""
 
@@ -169,22 +153,9 @@ def create_highlight_reel(
 
             clip = source.subclipped(start, end)
             clip = clip.without_audio()
-
-            # -------------------------
-            # CAPTION
-            # -------------------------
-
-            if add_captions:
-
-                caption = overlay_text(
-                    highlight
-                )
-
-                clip = add_caption(
-                    clip,
-                    caption,
-                    caption_font,
-                )
+            clip = add_zoom(clip)
+            if vertical:
+                clip = crop_vertical(clip)
 
             # -------------------------
             # TRANSITION
@@ -275,7 +246,7 @@ def create_highlight_reel(
 
             # Set music volume
             music = music.with_effects([
-                afx.MultiplyVolume(0.7)
+                afx.MultiplyVolume(music_volume)
             ])
 
             # Make absolutely sure the original video
@@ -312,31 +283,6 @@ def create_highlight_reel(
             codec="libx264",
             audio_codec="aac",
             fps=source.fps,
-        )
-
-        # -----------------------------
-        # SOCIAL CAPTION
-        # -----------------------------
-
-        caption_path = (
-            os.path.splitext(output_path)[0]
-            + "_caption.txt"
-        )
-
-        with open(
-            caption_path,
-            "w",
-        ) as file:
-
-            file.write(
-                suggest_post_caption(
-                    highlights
-                )
-            )
-
-        print(
-            f"[Stitch] Social caption: "
-            f"{caption_path}"
         )
 
         # -----------------------------

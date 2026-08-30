@@ -2,7 +2,7 @@
 
 import os
 import time
-from typing import Any
+from typing import Any, Optional
 
 import requests
 from dotenv import load_dotenv
@@ -30,21 +30,59 @@ HEADERS = {
     "X-Api-Key": REKA_API_KEY,
 }
 
+# Question sets per event type to ask reka
+EVENT_QUERY_SETS = {
+    "college_fest": [
+        "large crowd dancing and cheering enthusiastically",
+        "exciting stage performance with energetic audience reaction",
+        "confetti, streamers, dramatic lights, or visually spectacular moment",
+        "large coordinated crowd reaction or celebration",
+        "funny surprising or unusual memorable moment at a college festival",
+    ],
+    "concert": [
+        "crowd cheering enthusiastically",
+        "crowd surge or crowd pushing forward",
+        "artist interacting directly with the audience",
+        "confetti or streamers falling",
+        "dramatic stage lighting effects",
+        "large audience reaction such as jumping or singing along",
+    ],
+    "sports": [
+        "goal, point, or scoring moment",
+        "team or crowd celebration",
+        "player collision or fall",
+        "crowd reacting to a big play",
+        "pitch invasion or crowd on the field",
+    ],
+    "cultural": [
+        "dance performance on stage",
+        "audience reacting to a performance",
+        "stage lighting or visual effects",
+        "large group performance or coordinated movement",
+        "unusual or surprising moment",
+    ],
+    "lecture": [
+        "speaker making an emphatic gesture",
+        "audience laughing or reacting",
+        "audience applauding",
+        "question and answer interaction",
+        "screen or slide change with visual content",
+    ],
+    "competition": [
+        "winning or announcement moment",
+        "audience or team celebration",
+        "tense or dramatic reaction moment",
+        "trophy or award presentation",
+        "unusual or surprising moment",
+    ],
+}
 
-# Questions we will ask Reka
-HIGHLIGHT_QUERIES = [
-    "large crowd dancing and cheering enthusiastically",
-    "exciting stage performance with energetic audience reaction",
-    "confetti, streamers, dramatic lights, or visually spectacular moment",
-    "large coordinated crowd reaction or celebration",
-    "funny surprising or unusual memorable moment at a college festival",
-]
+DEFAULT_EVENT_TYPE = "college_fest"
 
 
 def upload_video(video_path: str) -> str:
     """Upload a video to Reka and return its video ID."""
 
-    # Make sure the file exists
     if not os.path.isfile(video_path):
         raise FileNotFoundError(
             f"Video file does not exist: {video_path}"
@@ -77,7 +115,6 @@ def upload_video(video_path: str) -> str:
             timeout=300,
         )
 
-    # Raise an error if Reka rejected the request
     response.raise_for_status()
 
     result = response.json()
@@ -190,19 +227,30 @@ def search_highlights(
             )
             time.sleep(3)
 
-    # If we get here, every retry failed
     print(
         f"[Reka] Giving up on query after {max_retries} attempts: {query}"
     )
     print(f"[Reka] Last error: {last_error}")
     return []
 
-def find_highlights(video_id: str) -> list[dict[str, Any]]:
+
+def find_highlights(
+    video_id: str,
+    event_type: str = DEFAULT_EVENT_TYPE,
+    custom_queries: Optional[list] = None,
+) -> list:
     """Run all highlight searches and return timestamped events."""
+
+    if custom_queries:
+        queries = custom_queries
+    else:
+        queries = EVENT_QUERY_SETS.get(event_type, EVENT_QUERY_SETS[DEFAULT_EVENT_TYPE])
+
+    print(f"[Reka] Using event type: {event_type}")
 
     events = []
 
-    for query in HIGHLIGHT_QUERIES:
+    for query in queries:
 
         matches = search_highlights(
             video_id=video_id,
@@ -232,7 +280,6 @@ def find_highlights(video_id: str) -> list[dict[str, Any]]:
                 }
             )
 
-    # Sort best matches first
     events.sort(
         key=lambda event: event["score"],
         reverse=True,
