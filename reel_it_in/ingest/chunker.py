@@ -136,7 +136,7 @@ def main():
         pub.join(timeout=5)
         print("[ingest] done.", flush=True)
 
-    # Pass ffmpeg's exit status up so the manager can tell a finished file
-    # from a camera that dropped. 255 is ffmpeg's code for being killed.
-    if proc.returncode not in (0, None):
+        # A file legitimately ends. A live camera or stream never should - if it
+    # stopped, something broke, so report failure and let the manager restart.
+    if describe(args.source) != "file" or proc.returncode not in (0, None):
         sys.exit(1)
