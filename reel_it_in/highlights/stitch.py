@@ -13,6 +13,26 @@ from moviepy import (
     afx,
 )
 
+def get_beat_times(music_path):
+    """Return a sorted list of beat timestamps (seconds) from a music file."""
+
+    import librosa
+
+    y, sr = librosa.load(music_path)
+    _, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
+    beat_times = librosa.frames_to_time(beat_frames, sr=sr)
+
+    return sorted(beat_times.tolist())
+
+
+def snap_to_beat(time_value, beat_times):
+    """Return the closest beat timestamp to time_value."""
+
+    if not beat_times:
+        return time_value
+
+    return min(beat_times, key=lambda b: abs(b - time_value))
+
 def add_zoom(clip, zoom_amount=0.06):
     """Slowly zoom in over the clip's duration for a dynamic feel."""
 
@@ -123,7 +143,11 @@ def create_highlight_reel(
         # -----------------------------
         # CREATE INDIVIDUAL CLIPS
         # -----------------------------
+        beat_times = get_beat_times(music_path) if (music_path and os.path.isfile(music_path)) else None
 
+        if beat_times:
+            print(f"[Stitch] Detected {len(beat_times)} beats for cut-syncing.")
+            
         for index, highlight in enumerate(
             highlights,
             start=1,
@@ -138,6 +162,14 @@ def create_highlight_reel(
                 source.duration,
                 float(highlight["end"])
             )
+
+            if beat_times:
+                clip_duration = end - start
+                snapped_start = snap_to_beat(start, beat_times)
+                end = snapped_start + clip_duration
+                start = snapped_start
+                end = min(source.duration, end)
+
 
             if end <= start:
                 print(

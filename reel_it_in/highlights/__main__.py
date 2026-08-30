@@ -269,7 +269,7 @@ def main():
         "--music",
         default="data/music/track.mp3",
     )
-
+    
     parser.add_argument(
         "--music-volume",
         type=float,
@@ -323,7 +323,7 @@ def main():
         transition_duration=args.transition_duration,
         music_path=args.music,
         music_volume=args.music_volume,
-            vertical=vertical,
+        vertical=vertical,
         event_type=event_type,
         custom_queries=custom_queries,
     )
